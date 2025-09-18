@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Domain for Sale 🌊</title>
+<meta name="color-scheme" content="light dark" />
+<style>
+  /* ===== Design Tokens (Dark as default) ===== */
+  :root{
+    --bg:#0b1220;
+    --fg:#e9eef7;
+    --muted:#a8b3c7;
+    --card:#0f1729;
+    --border:#22314f;
+    --accent:#5dd6ff;
+
+    --wave1:#0b1f3f;
+    --wave2:#0a1831;
+    --wave3:#081228;
+
+    --btn:#0ea5e9;
+    --btn-fg:#071225;
+
+    --shadow:0 12px 40px rgba(0,0,0,.35);
+    --sky-grad: radial-gradient(1200px 600px at 50% 120%, #061224 0%, transparent 65%);
+  }
+  .theme-light{
+    --bg:#eaf6ff;
+    --fg:#0b1220;
+    --muted:#465167;
+    --card:#ffffff;
+    --border:#dbe7f4;
+    --accent:#0077ff;
+
+    --wave1:#9fd7ff;
+    --wave2:#6ec2ff;
+    --wave3:#4aaaf0;
+
+    --btn:#2563eb;
+    --btn-fg:#ffffff;
+
+    --shadow:0 10px 32px rgba(2,20,40,.15);
+    --sky-grad: radial-gradient(1200px 600px at 50% 120%, #bde4ff 0%, transparent 65%);
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji";
+    background:var(--bg);
+    color:var(--fg);
+    min-height:100%;
+    overflow:hidden;
+  }
+
+  /* ===== Background Scene ===== */
+  .scene{position:fixed; inset:0; z-index:-1; overflow:hidden; pointer-events:none;}
+  .sky{
+    position:absolute; inset:0;
+    background:
+      var(--sky-grad),
+      linear-gradient(to bottom, transparent 0 60%, var(--bg) 100%);
+  }
+
+  /* Star field (night only) */
+  #starsCanvas{ position:absolute; inset:0; display:block; }
+
+  /* Birds (day only) */
+  .birds{ position:absolute; inset:0; display:none; }
+  .theme-light .birds{ display:block; }
+  .bird{
+    position:absolute; top:10vh; left:-12vw; width:52px; height:28px;
+    animation: fly 18s linear infinite;
+    opacity:.9;
+  }
+  .bird:nth-child(2){ top:22vh; animation-duration:22s; animation-delay:-6s; transform:scale(1.15) }
+  .bird:nth-child(3){ top:34vh; animation-duration:20s; animation-delay:-10s; transform:scale(0.9) }
+  @keyframes fly{
+    0%{ left:-12vw; transform:translateY(0) }
+    50%{ transform:translateY(-2vh) }
+    100%{ left:112vw; transform:translateY(0) }
+  }
+
+  /* Ocean Waves */
+  .ocean{ position:absolute; left:-10%; width:120%; height:55%; bottom:-8%; }
+  .wave{
+    position:absolute; left:0; width:100%; height:50%;
+    border-radius:50% 50% 0 0;
+    background: radial-gradient(120% 80% at 50% 100%, var(--wave1) 0%, var(--wave2) 60%, var(--wave3) 100%);
+    filter: drop-shadow(0 -10px 30px rgba(0,0,0,.12));
+    animation: swell 16s linear infinite;
+  }
+  .wave.w1{ bottom:0%;  animation-duration:16s }
+  .wave.w2{ bottom:-4%; animation-duration:22s; opacity:.8 }
+  .wave.w3{ bottom:-8%; animation-duration:28s; opacity:.6 }
+  @keyframes swell{ 0%{transform:translateX(0)}50%{transform:translateX(-4%)}100%{transform:translateX(0)} }
+
+  /* ===== Content ===== */
+  .wrap{
+    height:100%;
+    display:grid;
+    place-items:center;
+    padding:24px;
+  }
+  .card{
+    width:min(92vw, 760px);
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:28px;
+    padding: clamp(24px, 5vw, 48px);
+    box-shadow:var(--shadow);
+    text-align:center; /* center everything */
+    position:relative;
+    overflow:hidden;
+    backdrop-filter: blur(6px) saturate(110%);
+  }
+  .card::after{
+    content:""; position:absolute; inset:-40%;
+    background: radial-gradient(50% 50% at 50% 50%, var(--accent) 0%, transparent 45%);
+    opacity:.05; filter: blur(42px);
+    animation: pulse 8s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+
+  header.top{
+    display:flex; justify-content:flex-end; align-items:center;
+    margin-bottom:6px;
+  }
+
+  h1{
+    margin: 8px 0 14px;
+    font-weight: 900;
+    letter-spacing:-0.02em;
+    line-height:1.05;
+    font-size: clamp(34px, 6.5vw, 58px);
+  }
+  ul{list-style:none; padding:0; margin:0 0 18px}
+  li{font-size: clamp(18px, 2.8vw, 22px); font-weight:700; margin:6px 0}
+  p{margin:0 0 22px; color:var(--muted); font-size: clamp(16px, 2.4vw, 18px)}
+
+  .row{display:flex; justify-content:center; gap:12px; align-items:center; flex-wrap:wrap}
+
+  /* Buttons */
+  .btn{
+    appearance:none; border:0; cursor:pointer;
+    border-radius:14px; padding:14px 18px;
+    font-weight:800; letter-spacing:.2px;
+    display:inline-flex; align-items:center; gap:10px;
+    text-decoration:none; transition: transform .08s ease, filter .2s ease, background .2s ease;
+    position:relative; z-index:1;
+  }
+  .btn:active{ transform: translateY(1px) scale(0.995) }
+  .btn-primary{
+    background: linear-gradient(180deg, var(--btn) 0%, color-mix(in oklab, var(--btn), #000 12%) 100%);
+    color: var(--btn-fg);
+    border:1px solid color-mix(in oklab, var(--btn), #000 20%);
+    box-shadow: 0 10px 26px color-mix(in oklab, var(--btn), #000 70% / 35%);
+  }
+  .btn-ghost{
+    background: transparent;
+    color: var(--fg);
+    border:1px solid var(--border);
+    padding:12px 14px;
+  }
+  .icon{ width:22px; height:22px; display:block }
+
+  .note{
+    margin-top:12px;
+    font-size:13.5px;
+    color:var(--muted);
+    line-height:1.4;
+  }
+  .eth{ font-weight:800; cursor:pointer; text-decoration:underline; text-decoration-color:var(--accent); text-underline-offset:3px }
+
+  /* Toast */
+  .toast{
+    position:fixed; left:50%; bottom:28px; transform:translateX(-50%);
+    background:var(--card); border:1px solid var(--border); color:var(--fg);
+    padding:10px 14px; border-radius:12px; box-shadow:var(--shadow);
+    opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(-4px) }
+
+  /* Motion accessibility */
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition:none !important}
+  }
+</style>
+</head>
+<body>
+  <!-- Background Scene -->
+  <div class="scene" aria-hidden="true">
+    <div class="sky"></div>
+
+    <!-- Night stars (canvas) -->
+    <canvas id="starsCanvas"></canvas>
+
+    <!-- Day birds (SVG silhouettes) -->
+    <div class="birds">
+      <!-- simple gull silhouette path -->
+      <svg class="bird" viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M1 11 C7 1, 11 11, 17 1 C20 -1, 23 6, 23 6" />
+      </svg>
+      <svg class="bird" viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M1 11 C7 1, 11 11, 17 1 C20 -1, 23 6, 23 6" />
+      </svg>
+      <svg class="bird" viewBox="0 0 24 12" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M1 11 C7 1, 11 11, 17 1 C20 -1, 23 6, 23 6" />
+      </svg>
+    </div>
+
+    <!-- Ocean -->
+    <div class="ocean">
+      <div class="wave w1"></div>
+      <div class="wave w2"></div>
+      <div class="wave w3"></div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="wrap">
+    <section class="card" role="region" aria-label="Domain for sale">
+      <header class="top">
+        <button id="themeToggle" class="btn btn-ghost" aria-label="Toggle theme" title="Toggle light/dark">
+          <!-- JS injects sun/moon -->
+        </button>
+      </header>
+
+      <h1>🏷️ Domain is for sale!</h1>
+
+
+      <p>Contact 📬: <a id="contactEmail" href="mailto:smartwatchgpro@gmail.com" style="color:inherit; text-decoration:underline; text-decoration-color: var(--accent); text-decoration-thickness: 2px;">smartwatchgpro@gmail.com</a></p>
+
+      <div class="row" style="margin-top:14px">
+        <a id="contactBtn" class="btn btn-primary"
+           href="mailto:smartwatchgpro@gmail.com?subject=Domain%20Inquiry%20🌐&body=Hi%2C%20I%27m%20interested%20in%20your%20domain.">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 6h16v12H4z"/><path d="m22 6-10 7L2 6"/>
+          </svg>
+          Inquire now!
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast">Copied to clipboard ✅</div>
+
+<script>
+(function(){
+  /* ===== Theme Toggle ===== */
+  const root = document.documentElement;
+  const toggle = document.getElementById('themeToggle');
+  function setIcon(mode){
+    toggle.innerHTML = (mode === 'light')
+      ? `<!-- Sun --> <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+           <circle cx="12" cy="12" r="4"></circle>
+           <path d="M12 2v2M12 20v2M4 12H2M22 12h-2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+         </svg>`
+      : `<!-- Moon --> <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+         </svg>`;
+    toggle.setAttribute('aria-label', mode === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
+  }
+  function setTheme(mode){
+    if(mode === 'light'){
+      root.classList.add('theme-light');
+      localStorage.setItem('theme','light');
+      setIcon('light');
+      // Stars hidden in light via CSS (birds appear)
+    }else{
+      root.classList.remove('theme-light');
+      localStorage.setItem('theme','dark');
+      setIcon('dark');
+      // Birds hidden (stars visible)
+    }
+  }
+  const saved = localStorage.getItem('theme');
+  const prefersLight = matchMedia && matchMedia('(prefers-color-scheme: light)').matches;
+  setTheme(saved ? saved : (prefersLight ? 'light' : 'dark'));
+  toggle.addEventListener('click', ()=>{
+    const isLight = root.classList.contains('theme-light');
+    setTheme(isLight ? 'dark' : 'light');
+  });
+
+  /* ===== Stars Canvas (nice, dense twinkle) ===== */
+  const canvas = document.getElementById('starsCanvas');
+  const ctx = canvas.getContext('2d');
+  const stars = [];
+  let rafId;
+  function resize(){
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.floor(innerWidth * dpr);
+    canvas.height = Math.floor(innerHeight * dpr);
+    canvas.style.width = innerWidth + 'px';
+    canvas.style.height = innerHeight + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // regenerate stars proportional to area
+    stars.length = 0;
+    const count = Math.floor((innerWidth * innerHeight) / 6500); // density
+    for(let i=0;i<count;i++){
+      stars.push({
+        x: Math.random()*innerWidth,
+        y: Math.random()*innerHeight*0.7, // keep above horizon
+        r: Math.random()*1.6 + 0.4,
+        p: Math.random()*Math.PI*2,
+        s: 0.4 + Math.random()*0.8, // twinkle speed
+        c: ['#fff','#eaf4ff','#cfe6ff','#bfe0ff'][Math.floor(Math.random()*4)]
+      });
+    }
+  }
+  function draw(time){
+    // Skip drawing if in light mode (hidden visually anyway)
+    if(document.documentElement.classList.contains('theme-light')){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+    }else{
+      ctx.clearRect(0,0,innerWidth,innerHeight);
+      for(const st of stars){
+        const tw = 0.55 + 0.45*Math.sin(time*0.001*st.s + st.p);
+        ctx.globalAlpha = tw;
+        ctx.fillStyle = st.c;
+        ctx.beginPath();
+        ctx.arc(st.x, st.y, st.r, 0, Math.PI*2);
+        ctx.fill();
+        // soft glow
+        ctx.globalAlpha = tw*0.25;
+        ctx.beginPath();
+        ctx.arc(st.x, st.y, st.r*3, 0, Math.PI*2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+    rafId = requestAnimationFrame(draw);
+  }
+  resize();
+  addEventListener('resize', resize);
+  rafId = requestAnimationFrame(draw);
+
+  /* ===== Copy ETH Address ===== */
+  const toast = document.getElementById('toast');
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(()=> toast.classList.remove('show'), 1300);
+  }
+  document.getElementById('ethAddr').addEventListener('click', async (e)=>{
+    const text = e.currentTarget.textContent.trim();
+    try{
+      await navigator.clipboard.writeText(text);
+      showToast('Address copied! ✅');
+    }catch{
+      // Fallback
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); showToast('Address copied! ✅'); }
+      finally{ ta.remove(); }
+    }
+  });
+
+  /* ===== Ensure mailto works normally ===== */
+  document.getElementById('contactBtn').addEventListener('click', ()=>{ /* default anchor behavior */ });
+
+})();
+</script>
+</body>
+</html>
