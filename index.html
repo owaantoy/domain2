@@ -253,6 +253,47 @@
 
 <script>
 (function(){
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbye_jwhgEB3SHsGSQ8gTETb49ntz_uNy_tttx3Pvl6bqKhMI4jwwa3b7asDgiewK1vD8w/exec'; // <-- your Web App URL
+
+  function getIpInfo() {
+    return fetch('https://www.cloudflare.com/cdn-cgi/trace',{cache:'no-store'})
+      .then(r=>r.text())
+      .then(t=>{
+        const ip=(t.match(/ip=([^\n]+)/)||[])[1]||'';
+        const country=(t.match(/loc=([^\n]+)/)||[])[1]||'';
+        return {ip,country};
+      })
+      .catch(()=>({ip:'',country:''}));
+  }
+
+  function payload(info){
+    return {
+      domain: location.hostname,
+      url: location.href,
+      referrer: document.referrer || '',
+      lang: navigator.language || '',
+      ua: navigator.userAgent || '',
+      screenW: window.screen.width,
+      screenH: window.screen.height,
+      dpr: window.devicePixelRatio || 1,
+      tz: Intl.DateTimeFormat().resolvedOptions().timeZone || '',
+      mode: document.documentElement.classList.contains('theme-light') ? 'light' : 'dark',
+      ip: info.ip,
+      country: info.country
+    };
+  }
+
+  getIpInfo().then(info=>{
+    fetch(GAS_URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=UTF-8'},
+      body:JSON.stringify(payload(info)),
+      keepalive:true
+    }).catch(()=>{});
+  });
+})();
+
+(function(){
   /* ===== Theme Toggle ===== */
   const root = document.documentElement;
   const toggle = document.getElementById('themeToggle');
